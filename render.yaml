@@ -1,0 +1,35 @@
+services:
+  # Backend service
+  - type: web
+    name: couch-potato-backend
+    runtime: node
+    env: node
+    buildCommand: pnpm install && pnpm build
+    startCommand: cd apps/backend && pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: couch-potato-frontend
+          property: host
+
+  # Frontend service (static site)
+  - type: web
+    name: couch-potato-frontend
+    runtime: static
+    buildCommand: pnpm install && pnpm --filter frontend build
+    staticPublishPath: ./apps/frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: couch-potato-backend
+          property: host
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://couch-potato-backend.onrender.com/api/*

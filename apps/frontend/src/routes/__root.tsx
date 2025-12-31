@@ -18,7 +18,7 @@ function RootComponent() {
   return (
     <>
       <Outlet />
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <TanStackRouterDevtools position="bottom-right" />
       )}
     </>

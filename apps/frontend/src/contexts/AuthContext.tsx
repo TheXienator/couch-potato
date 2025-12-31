@@ -13,7 +13,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<string | null>(null);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, _password: string) => {
     // TODO: Replace with backend API call
     // For now, mock login - accept any email/password
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay

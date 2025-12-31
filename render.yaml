@@ -24,7 +24,6 @@ services:
   - type: web
     name: couch-potato-frontend
     runtime: static
-    plan: free
     autoDeploy: true
     buildCommand: VITE_API_URL=https://couch-potato-backend.onrender.com pnpm install && pnpm --filter frontend build
     staticPublishPath: ./apps/frontend/dist

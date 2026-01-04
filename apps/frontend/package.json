@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "generate:api": "openapi-typescript http://localhost:3000/docs/json -o ./src/api/schema.d.ts",
+    "generate:api": "openapi-typescript ../backend/openapi.json -o ./src/api/schema.d.ts",
     "dev": "pnpm generate:api && vite",
     "build": "pnpm generate:api && tsc && vite build",
     "preview": "vite preview"

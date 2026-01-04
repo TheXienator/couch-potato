@@ -5,6 +5,9 @@ node_modules/
 dist/
 build/
 
+# Generated files
+apps/backend/openapi.json
+
 # Environment variables
 .env
 .env.local

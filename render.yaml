@@ -39,7 +39,7 @@ services:
     name: couch-potato-frontend
     runtime: static
     autoDeploy: true
-    buildCommand: VITE_API_URL=https://couch-potato-backend.onrender.com pnpm install && pnpm --filter backend generate:openapi && pnpm --filter frontend build
+    buildCommand: VITE_API_URL=https://couch-potato-backend.onrender.com pnpm install && pnpm --filter frontend build
     staticPublishPath: ./apps/frontend/dist
     routes:
       - type: rewrite

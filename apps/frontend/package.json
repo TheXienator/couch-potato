@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "generate:api": "openapi-typescript ../backend/openapi.json -o ./src/api/schema.d.ts",
-    "dev": "pnpm generate:api && vite",
-    "build": "pnpm generate:api && tsc && vite build",
+    "dev": "vite",
+    "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

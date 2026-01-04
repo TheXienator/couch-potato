@@ -7,7 +7,7 @@ export interface AuthUser {
 
 declare module 'fastify' {
   interface FastifyRequest {
-    user?: AuthUser;
+    authUser?: AuthUser;
   }
 }
 
@@ -17,7 +17,8 @@ export async function authenticate(
 ) {
   try {
     await request.jwtVerify();
-    request.user = request.user as AuthUser;
+    // Store authenticated user in authUser instead of user
+    request.authUser = request.user as AuthUser;
   } catch (err) {
     reply.status(401).send({ error: 'Unauthorized' });
   }

@@ -16,7 +16,7 @@ import {
 export async function signupHandler(
   request: FastifyRequest<{ Body: SignupRequest }>,
   reply: FastifyReply
-): Promise<SignupResponse> {
+) {
   const { email, password } = request.body;
 
   // Check if user already exists
@@ -27,8 +27,7 @@ export async function signupHandler(
     .limit(1);
 
   if (existingUser.length > 0) {
-    reply.status(409).send({ error: 'User already exists' });
-    return;
+    return reply.status(409).send({ error: 'User already exists' });
   }
 
   // Hash password
@@ -85,7 +84,7 @@ export async function signupHandler(
 export async function loginHandler(
   request: FastifyRequest<{ Body: LoginRequest }>,
   reply: FastifyReply
-): Promise<LoginResponse> {
+) {
   const { email, password } = request.body;
 
   // Find user
@@ -96,16 +95,14 @@ export async function loginHandler(
     .limit(1);
 
   if (!user) {
-    reply.status(401).send({ error: 'Invalid credentials' });
-    return;
+    return reply.status(401).send({ error: 'Invalid credentials' });
   }
 
   // Verify password
   const isValid = await verifyPassword(password, user.hashedPassword);
 
   if (!isValid) {
-    reply.status(401).send({ error: 'Invalid credentials' });
-    return;
+    return reply.status(401).send({ error: 'Invalid credentials' });
   }
 
   // Generate access token
@@ -149,8 +146,8 @@ export async function loginHandler(
 export async function meHandler(
   request: FastifyRequest,
   reply: FastifyReply
-): Promise<MeResponse> {
-  const userId = request.user!.id;
+) {
+  const userId = request.authUser!.id;
 
   const [user] = await db
     .select()
@@ -159,8 +156,7 @@ export async function meHandler(
     .limit(1);
 
   if (!user) {
-    reply.status(404).send({ error: 'User not found' });
-    return;
+    return reply.status(404).send({ error: 'User not found' });
   }
 
   return {
@@ -177,7 +173,7 @@ export async function meHandler(
 export async function logoutHandler(
   request: FastifyRequest,
   reply: FastifyReply
-): Promise<LogoutResponse> {
+) {
   // Clear refresh token cookie
   reply.clearCookie('refreshToken', { path: '/' });
 
@@ -189,12 +185,11 @@ export async function logoutHandler(
 export async function refreshHandler(
   request: FastifyRequest,
   reply: FastifyReply
-): Promise<RefreshResponse> {
+) {
   const refreshToken = request.cookies.refreshToken;
 
   if (!refreshToken) {
-    reply.status(401).send({ error: 'No refresh token provided' });
-    return;
+    return reply.status(401).send({ error: 'No refresh token provided' });
   }
 
   try {
@@ -205,8 +200,7 @@ export async function refreshHandler(
     };
 
     if (decoded.type !== 'refresh') {
-      reply.status(401).send({ error: 'Invalid token type' });
-      return;
+      return reply.status(401).send({ error: 'Invalid token type' });
     }
 
     // Generate new access token
@@ -222,7 +216,6 @@ export async function refreshHandler(
       accessToken,
     };
   } catch (err) {
-    reply.status(401).send({ error: 'Invalid or expired refresh token' });
-    return;
+    return reply.status(401).send({ error: 'Invalid or expired refresh token' });
   }
 }

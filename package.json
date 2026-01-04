@@ -12,5 +12,8 @@
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "chrome-devtools-mcp": "^0.12.1"
   }
 }

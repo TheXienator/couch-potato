@@ -1,10 +1,14 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useLogin, useSignup, useLogout, useMe } from '../api/hooks/auth';
+import { setAuthToken } from '../api/client';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: string | null;
   login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -13,22 +17,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<string | null>(null);
 
-  const login = async (email: string, _password: string) => {
-    // TODO: Replace with backend API call
-    // For now, mock login - accept any email/password
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-    setUser(email);
+  const loginMutation = useLogin();
+  const signupMutation = useSignup();
+  const logoutMutation = useLogout();
+
+  // Try to restore session on mount (only runs once with enabled: false initially)
+  const { data: meData, isLoading: meLoading } = useMe(false);
+
+  useEffect(() => {
+    if (meData?.user) {
+      setUser(meData.user.email);
+      setIsAuthenticated(true);
+    }
+  }, [meData]);
+
+  const login = async (email: string, password: string) => {
+    const data = await loginMutation.mutateAsync({ email, password });
+    setAuthToken(data.accessToken);
+    setUser(data.user.email);
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    // TODO: Replace with backend API call to invalidate session
+  const signup = async (email: string, password: string) => {
+    const data = await signupMutation.mutateAsync({ email, password });
+    setAuthToken(data.accessToken);
+    setUser(data.user.email);
+    setIsAuthenticated(true);
+  };
+
+  const logout = async () => {
+    await logoutMutation.mutateAsync();
+    setAuthToken(null);
     setUser(null);
     setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        login,
+        signup,
+        logout,
+        isLoading: meLoading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -15,11 +15,12 @@ export const Route = createFileRoute('/login')({
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSignupMode, setIsSignupMode] = useState(false);
   const [error, setError] = useState('');
 
-  const { login } = useAuth();
+  const { login, signup } = useAuth();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -30,13 +31,23 @@ function LoginPage() {
       return;
     }
 
+    if (password.length < 8 && isSignupMode) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await login(email, password);
-      // Navigate to home page after successful login
+      if (isSignupMode) {
+        await signup(email, password);
+      } else {
+        await login(email, password);
+      }
+      // Navigate to home page after successful auth
       navigate({ to: '/' });
-    } catch (err) {
-      setError('Login failed. Please try again.');
+    } catch (err: any) {
+      const errorMessage = err?.error || err?.message || 'Authentication failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -91,13 +102,24 @@ function LoginPage() {
             disabled={isLoading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading
+              ? (isSignupMode ? 'Creating account...' : 'Signing in...')
+              : (isSignupMode ? 'Sign Up' : 'Sign In')}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Demo: Enter any email and password
-        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setIsSignupMode(!isSignupMode);
+            setError('');
+          }}
+          className="mt-4 w-full text-center text-sm text-gray-600 hover:text-gray-800"
+        >
+          {isSignupMode
+            ? 'Already have an account? Sign in'
+            : "Don't have an account? Sign up"}
+        </button>
       </div>
     </div>
   );
